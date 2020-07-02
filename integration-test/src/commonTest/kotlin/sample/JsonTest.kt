@@ -2,6 +2,7 @@
  * Copyright 2017-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:UseExperimental(UnstableDefault::class)
+@file:Suppress("UNCHECKED_CAST")
 
 package sample
 
@@ -9,6 +10,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlin.reflect.*
 import kotlin.test.*
 
 class JsonTest {
@@ -47,11 +49,15 @@ class JsonTest {
     }
 
     private val testModule = SerializersModule {
-        polymorphic(Message::class, IMessage::class, SimpleMessage::class) {
-            addSubclass(SimpleMessage::class, SimpleMessage.serializer())
-            addSubclass(DoubleSimpleMessage::class, DoubleSimpleMessage.serializer())
-            addSubclass(MessageWithId::class, MessageWithId.serializer())
+        val classes = listOf(Message::class, IMessage::class, SimpleMessage::class)
+        for (clz in classes) {
+            polymorphic(clz as KClass<Any>) {
+                subclass(SimpleMessage::class)
+                subclass(DoubleSimpleMessage::class)
+                subclass(MessageWithId::class)
+            }
         }
+
     }
 
     @Test
@@ -150,7 +156,7 @@ class JsonTest {
     @Test
     fun testWithModules() {
         val json = Json {
-            useArrayPolymorphism = true; serialModule = SerializersModule { polymorphic(Any::class) { IntData::class with IntData.serializer() } } }
+            useArrayPolymorphism = true; serialModule = SerializersModule { polymorphic(Any::class) { subclass(IntData::class) } } }
         assertStringFormAndRestored(
             expected = """{"data":{"a":["sample.IntData",{"intV":42}]}}""",
             original = MyPolyData(mapOf("a" to IntData(42))),
@@ -178,7 +184,7 @@ class JsonTest {
 
     private val baseAndDerivedModuleAtAny = SerializersModule {
         polymorphic(Any::class) {
-            PolyDerived::class with PolyDerived.serializer()
+            subclass(PolyDerived::class)
         }
     }
 

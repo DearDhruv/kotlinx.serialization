@@ -83,6 +83,8 @@ public final class kotlinx/serialization/CompositeEncoder$DefaultImpls {
 
 public final class kotlinx/serialization/ContextAwareKt {
 	public static final fun getCapturedKClass (Lkotlinx/serialization/SerialDescriptor;)Lkotlin/reflect/KClass;
+	public static final fun getContextualDescriptor (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
+	public static final fun getPolymorphicDescriptors (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
 }
 
 public final class kotlinx/serialization/ContextSerializer : kotlinx/serialization/KSerializer {
@@ -1782,25 +1784,22 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 	protected fun writeTransform (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 }
 
-public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
-	public final fun addSubclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
-	public final fun default (Lkotlin/jvm/functions/Function1;)V
-	public final fun with (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
-}
-
-public final class kotlinx/serialization/modules/SerialModuleBuildersKt {
-	public static final fun SerializersModule (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/modules/SerializersModule;
-	public static final fun serializersModuleOf (Ljava/util/Map;)Lkotlinx/serialization/modules/SerializersModule;
-	public static final fun serializersModuleOf (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/modules/SerializersModule;
-}
-
-public final class kotlinx/serialization/modules/SerialModuleExtensionsKt {
+public final class kotlinx/serialization/modules/ModulesMigrationsKt {
+	public static final fun defaultPolymorphic (Lkotlinx/serialization/modules/SerializersModuleCollector;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static final fun getContextual (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/KSerializer;
 	public static final fun getContextual (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Object;)Lkotlinx/serialization/KSerializer;
-	public static final fun getContextualDescriptor (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/SerialDescriptor;)Lkotlinx/serialization/SerialDescriptor;
-	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
-	public static final fun getPolymorphicDescriptors (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/SerialDescriptor;)Ljava/util/List;
-	public static final fun overwriteWith (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/modules/SerializersModule;
-	public static final fun plus (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun polymorphic$default (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun serializersModule (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun serializersModuleOf (Ljava/util/Map;)Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
+	public final fun default (Lkotlin/jvm/functions/Function1;)V
+	public final fun subclass ()V
+	public final fun subclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun with (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 }
 
 public abstract class kotlinx/serialization/modules/SerializersModule {
@@ -1812,22 +1811,28 @@ public abstract class kotlinx/serialization/modules/SerializersModule {
 
 public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotlinx/serialization/modules/SerializersModuleCollector {
 	public fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
-	public fun defaultPolymorphic (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public final fun include (Lkotlinx/serialization/modules/SerializersModule;)V
 	public fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
-	public final fun polymorphic (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
-	public final fun polymorphic (Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class kotlinx/serialization/modules/SerializersModuleBuildersKt {
+	public static final fun SerializersModule (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun polymorphic (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun polymorphic$default (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public static synthetic fun polymorphic$default (Lkotlinx/serialization/modules/SerializersModuleBuilder;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun serializersModuleOf (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/modules/SerializersModule;
 }
 
 public abstract interface class kotlinx/serialization/modules/SerializersModuleCollector {
 	public abstract fun contextual (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
-	public abstract fun defaultPolymorphic (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public abstract fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public abstract fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class kotlinx/serialization/modules/SerializersModuleKt {
+	public static final fun getContextualOrDefault (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KType;)Lkotlinx/serialization/KSerializer;
 	public static final fun getEmptySerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun overwriteWith (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/modules/SerializersModule;
+	public static final fun plus (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/modules/SerializersModule;
 }
 

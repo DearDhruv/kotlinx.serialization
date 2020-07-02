@@ -58,7 +58,7 @@ class PolymorphismTest : JsonTestBase() {
     @Test
     fun testDefaultSerializer() = parametrizedTest { useStreaming ->
         val withDefault = module + SerializersModule {
-            defaultPolymorphic(PolyBase::class) { name ->
+            polymorphicDefault(PolyBase::class) { name ->
                 if (name == "foo") {
                     PolyDefaultSerializer
                 } else {
