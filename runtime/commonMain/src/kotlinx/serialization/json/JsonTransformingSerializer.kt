@@ -18,11 +18,11 @@ import kotlinx.serialization.json.internal.*
  * i.e. serializers derived from this class work only with [Json] format.
  *
  * During serialization, this class first serializes original value with [tSerializer] to a [JsonElement],
- * then calls [writeTransform] method, which may contain a user-defined transformation, such as
+ * then calls [transformSerialize] method, which may contain a user-defined transformation, such as
  * wrapping a value into [JsonArray], filtering keys, adding keys, etc.
  *
  * During deserialization, the opposite process happens: first, value from JSON stream is read
- * to a [JsonElement], second, user transformation in [readTransform] is applied,
+ * to a [JsonElement], second, user transformation in [transformDeserialize] is applied,
  * and then JSON tree is deserialized back to [T] with [tSerializer].
  *
  * Usage example:
@@ -34,8 +34,8 @@ import kotlinx.serialization.json.internal.*
  * )
  * // Unwraps a list to a single object
  * object UnwrappingJsonListSerializer :
- *     JsonTransformingSerializer<String>(String.serializer(), "UnwrappingList") {
- *     override fun readTransform(element: JsonElement): JsonElement {
+ *     JsonTransformingSerializer<String>(String.serializer()) {
+ *     override fun transformDeserialize(element: JsonElement): JsonElement {
  *         if (element !is JsonArray) return element
  *         require(element.size == 1) { "Array size must be equal to 1 to unwrap it" }
  *         return element.first()
@@ -49,9 +49,9 @@ import kotlinx.serialization.json.internal.*
  * @param T A type for Kotlin property for which this serializer could be applied.
  *        **Not** the type that you may encounter in JSON. (e.g. if you unwrap a list
  *        to a single value `T`, use `T`, not `List<T>`)
- * @param tSerializer A serializer for type [T]. Determines [JsonElement] which is passed to [writeTransform].
- *        Should be able to parse [JsonElement] from [readTransform] function.
- *        Usually, default serializer is sufficient.
+ * @param tSerializer A serializer for type [T]. Determines [JsonElement] which is passed to [transformSerialize].
+ *        Should be able to parse [JsonElement] from [transformDeserialize] function.
+ *        Usually, default [serializer] is sufficient.
  */
 public abstract class JsonTransformingSerializer<T : Any>(
     private val tSerializer: KSerializer<T>
