@@ -52,47 +52,74 @@ import kotlinx.serialization.json.internal.*
  * @param tSerializer A serializer for type [T]. Determines [JsonElement] which is passed to [writeTransform].
  *        Should be able to parse [JsonElement] from [readTransform] function.
  *        Usually, default serializer is sufficient.
- * @param transformationName A name for the particular implementation to fulfill [SerialDescriptor.serialName] uniqueness guarantee.
  */
 public abstract class JsonTransformingSerializer<T : Any>(
-    private val tSerializer: KSerializer<T>,
-    transformationName: String
+    private val tSerializer: KSerializer<T>
 ) : KSerializer<T> {
+
+    @Deprecated(
+        "Transformation name parameter is no longer used in TransformingSerializer. To add custom serial name to transformation, override SerialDescriptor.",
+        ReplaceWith("JsonTransformingSerializer<T>(tSerializer)"),
+        DeprecationLevel.ERROR
+    )
+    public constructor(
+        tSerializer: KSerializer<T>,
+        transformationName: String
+    ) : this(tSerializer)
+
     /**
      * A descriptor for this transformation.
-     * By default, it uses the name composed of [tSerializer]'s descriptor and transformation name,
-     * kind of [tSerializer]'s descriptor and contains 0 elements.
+     * By default, it delegates to [tSerializer]'s descriptor.
      *
      * However, this descriptor can be overridden to achieve better representation of the resulting JSON shape
      * for schema generating or introspection purposes.
      */
-    override val descriptor: SerialDescriptor = SerialDescriptor(
-        "JsonTransformingSerializer<${tSerializer.descriptor.serialName}>($transformationName)",
-        tSerializer.descriptor.kind
-    )
+    override val descriptor: SerialDescriptor get() = tSerializer.descriptor
 
     final override fun serialize(encoder: Encoder, value: T) {
         val output = encoder.asJsonEncoder()
         var element = output.json.writeJson(value, tSerializer)
-        element = writeTransform(element)
+        element = transformSerialize(element)
         output.encodeJsonElement(element)
     }
 
     final override fun deserialize(decoder: Decoder): T {
         val input = decoder.asJsonDecoder()
         val element = input.decodeJsonElement()
-        return input.json.decodeFromJsonElement(tSerializer, readTransform(element))
+        return input.json.decodeFromJsonElement(tSerializer, transformDeserialize(element))
     }
 
     /**
      * Transformation that happens during [deserialize] call.
      * Does nothing by default.
      */
-    protected open fun readTransform(element: JsonElement): JsonElement = element
+    @Deprecated(
+        "This method was renamed to better reflect its purpose",
+        ReplaceWith("transformDeserialize(element)"),
+        DeprecationLevel.ERROR
+    )
+    protected fun readTransform(element: JsonElement): JsonElement = transformDeserialize(element)
+
+    /**
+     * Transformation that happens during [deserialize] call.
+     * Does nothing by default.
+     */
+    protected open fun transformDeserialize(element: JsonElement): JsonElement = element
 
     /**
      * Transformation that happens during [serialize] call.
      * Does nothing by default.
      */
-    protected open fun writeTransform(element: JsonElement): JsonElement = element
+    @Deprecated(
+        "This method was renamed to better reflect its purpose",
+        ReplaceWith("transformSerialize(element)"),
+        DeprecationLevel.ERROR
+    )
+    protected fun writeTransform(element: JsonElement): JsonElement = transformSerialize(element)
+
+    /**
+     * Transformation that happens during [serialize] call.
+     * Does nothing by default.
+     */
+    protected open fun transformSerialize(element: JsonElement): JsonElement = element
 }
