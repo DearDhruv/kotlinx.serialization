@@ -6,7 +6,6 @@ package kotlinx.serialization.config
 
 import com.typesafe.config.*
 import kotlinx.serialization.*
-import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
@@ -32,11 +31,11 @@ public class ConfigParser(
     public inline fun <reified T : Any> parse(conf: Config): T = parse(conf, context.getContextualOrDefault())
 
     public fun <T> parse(conf: Config, deserializer: DeserializationStrategy<T>): T =
-        ConfigReader(conf).decode(deserializer)
+        ConfigReader(conf).decodeSerializableValue(deserializer)
 
 
     private abstract inner class ConfigConverter<T> : TaggedDecoder<T>() {
-        override val context: SerialModule
+        override val serializersModule: SerialModule
             get() = this@ConfigParser.context
 
         abstract fun getTaggedConfigValue(tag: T): ConfigValue
@@ -84,7 +83,7 @@ public class ConfigParser(
                     return ind
                 }
             }
-            return READ_DONE
+            return CompositeDecoder.DECODE_DONE
         }
 
         private fun composeName(parentName: String, childName: String) =
@@ -131,7 +130,7 @@ public class ConfigParser(
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             ind++
-            return if (ind > list.size - 1) READ_DONE else ind
+            return if (ind > list.size - 1) CompositeDecoder.DECODE_DONE else ind
         }
 
         override fun getTaggedConfigValue(tag: Int): ConfigValue = list[tag]
@@ -163,7 +162,7 @@ public class ConfigParser(
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             ind++
-            return if (ind >= indexSize) READ_DONE else ind
+            return if (ind >= indexSize) CompositeDecoder.DECODE_DONE else ind
         }
 
         override fun getTaggedConfigValue(tag: Int): ConfigValue {
