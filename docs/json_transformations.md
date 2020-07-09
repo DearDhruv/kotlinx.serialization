@@ -129,7 +129,7 @@ data class RefundedPayment(override val amount: String, val date: String, val re
 
 object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
     override fun selectDeserializer(content: JsonElement) = when {
-        "reason" in element -> RefundedPayment.serializer()
+        "reason" in element.jsonObject -> RefundedPayment.serializer()
         else -> SuccessfulPayment.serializer()
     }
 }

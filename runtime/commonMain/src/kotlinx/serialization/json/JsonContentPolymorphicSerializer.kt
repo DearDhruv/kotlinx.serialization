@@ -47,7 +47,7 @@ import kotlin.reflect.*
  *
  * object PaymentSerializer : JsonContentPolymorphicSerializer<Payment>(Payment::class) {
  *     override fun selectDeserializer(content: JsonElement) = when {
- *         "reason" in content -> RefundedPayment.serializer()
+ *         "reason" in content.jsonObject -> RefundedPayment.serializer()
  *         else -> SuccessfulPayment.serializer()
  *     }
  * }
@@ -92,13 +92,10 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
         return input.json.decodeFromJsonElement(actualSerializer, tree)
     }
 
-    /**
-     * Determines a particular serializer by looking on a parsed JSON [element].
-     */
+    @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated(
-        "This method was renamed to better reflect its purpose",
-        ReplaceWith("selectDeserializer(element)"),
-        DeprecationLevel.ERROR
+        "This method was renamed to selectDeserializer during serialization 1.0 API stabilization, please override it instead",
+        level = DeprecationLevel.ERROR
     )
     protected fun selectSerializer(element: JsonElement): KSerializer<out T> =
         selectDeserializer(element) as KSerializer<out T>
@@ -110,7 +107,7 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
 }
 
 @Deprecated(
-    "JsonParametricSerializer was renamed to better reflect its nature",
+    "This class was renamed during serialization 1.0 API stabilization",
     ReplaceWith("JsonContentPolymorphicSerializer<T>"),
     DeprecationLevel.ERROR
 )

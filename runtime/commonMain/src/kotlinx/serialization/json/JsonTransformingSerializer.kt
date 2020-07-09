@@ -2,6 +2,8 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DeprecatedCallableAddReplaceWith")
+
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
@@ -17,13 +19,8 @@ import kotlinx.serialization.json.internal.*
  * Please note that this class expects that [Encoder] and [Decoder] are implemented by [JsonDecoder] and [JsonEncoder],
  * i.e. serializers derived from this class work only with [Json] format.
  *
- * During serialization, this class first serializes original value with [tSerializer] to a [JsonElement],
- * then calls [transformSerialize] method, which may contain a user-defined transformation, such as
- * wrapping a value into [JsonArray], filtering keys, adding keys, etc.
- *
- * During deserialization, the opposite process happens: first, value from JSON stream is read
- * to a [JsonElement], second, user transformation in [transformDeserialize] is applied,
- * and then JSON tree is deserialized back to [T] with [tSerializer].
+ * There are two methods in which JSON transformation can be defined: [transformSerialize] and [transformDeserialize].
+ * You can override one or both of them. Consult their documentation for details.
  *
  * Usage example:
  *
@@ -89,37 +86,36 @@ public abstract class JsonTransformingSerializer<T : Any>(
         return input.json.decodeFromJsonElement(tSerializer, transformDeserialize(element))
     }
 
-    /**
-     * Transformation that happens during [deserialize] call.
-     * Does nothing by default.
-     */
     @Deprecated(
-        "This method was renamed to better reflect its purpose",
-        ReplaceWith("transformDeserialize(element)"),
-        DeprecationLevel.ERROR
+        "This method was renamed to transformDeserialize during serialization 1.0 API stabilization, please override it instead",
+        level = DeprecationLevel.ERROR
     )
     protected fun readTransform(element: JsonElement): JsonElement = transformDeserialize(element)
 
     /**
      * Transformation that happens during [deserialize] call.
      * Does nothing by default.
+     *
+     * During deserialization, value from JSON stream firstly decoded
+     * to a [JsonElement], then, user transformation in [transformDeserialize] is applied,
+     * and then JSON tree is deserialized back to [T] with [tSerializer].
      */
     protected open fun transformDeserialize(element: JsonElement): JsonElement = element
 
-    /**
-     * Transformation that happens during [serialize] call.
-     * Does nothing by default.
-     */
     @Deprecated(
-        "This method was renamed to better reflect its purpose",
-        ReplaceWith("transformSerialize(element)"),
-        DeprecationLevel.ERROR
+        "This method was renamed to writeTransform during serialization 1.0 API stabilization, please override it instead",
+        level = DeprecationLevel.ERROR
     )
     protected fun writeTransform(element: JsonElement): JsonElement = transformSerialize(element)
 
     /**
      * Transformation that happens during [serialize] call.
      * Does nothing by default.
+     *
+     * During serialization, this class first serializes original value with [tSerializer] to a [JsonElement],
+     * then calls [transformSerialize] method, which may contain a user-defined transformation, such as
+     * wrapping a value into [JsonArray], filtering keys, adding keys, etc.
+     * Then returned [JsonElement] is encoded to a JSON string.
      */
     protected open fun transformSerialize(element: JsonElement): JsonElement = element
 }
