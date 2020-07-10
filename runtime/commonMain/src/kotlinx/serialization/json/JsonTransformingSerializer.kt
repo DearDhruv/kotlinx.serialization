@@ -96,9 +96,9 @@ public abstract class JsonTransformingSerializer<T : Any>(
      * Transformation that happens during [deserialize] call.
      * Does nothing by default.
      *
-     * During deserialization, value from JSON stream firstly decoded
-     * to a [JsonElement], then, user transformation in [transformDeserialize] is applied,
-     * and then JSON tree is deserialized back to [T] with [tSerializer].
+     * During deserialization, a value from JSON is firstly decoded to a [JsonElement],
+     * user transformation in [transformDeserialize] is applied,
+     * and then resulting [JsonElement] is deserialized to [T] with [tSerializer].
      */
     protected open fun transformDeserialize(element: JsonElement): JsonElement = element
 
@@ -112,10 +112,8 @@ public abstract class JsonTransformingSerializer<T : Any>(
      * Transformation that happens during [serialize] call.
      * Does nothing by default.
      *
-     * During serialization, this class first serializes original value with [tSerializer] to a [JsonElement],
-     * then calls [transformSerialize] method, which may contain a user-defined transformation, such as
-     * wrapping a value into [JsonArray], filtering keys, adding keys, etc.
-     * Then returned [JsonElement] is encoded to a JSON string.
+     * During serialization, a value of type [T] is serialized with [tSerializer] to a [JsonElement],
+     * user transformation in [transformSerialize] is applied, and then resulting [JsonElement] is encoded to a JSON string.
      */
     protected open fun transformSerialize(element: JsonElement): JsonElement = element
 }
