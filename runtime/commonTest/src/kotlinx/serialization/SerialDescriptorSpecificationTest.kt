@@ -100,11 +100,11 @@ class SerialDescriptorSpecificationTest {
         fun SerialDescriptor.verifyEnumMember(name: String) {
             assertEquals("Named.$name", serialName)
             assertEquals(0, elementsCount)
-            assertEquals(StructureKind.OBJECT, kind)
+            assertEquals(SerialKind.OBJECT, kind)
         }
 
         val d = NamedEnum.serializer().descriptor
-        assertEquals(UnionKind.ENUM_KIND, d.kind)
+        assertEquals(SerialKind.ENUM, d.kind)
         assertEquals("Named", d.serialName)
         assertEquals(2, d.elementsCount)
         assertFalse(d.isNullable)
@@ -167,7 +167,7 @@ class SerialDescriptorSpecificationTest {
     @Test
     fun testObjectDescriptor() {
         val descriptor = SerializableObject.serializer().descriptor
-        assertEquals(StructureKind.OBJECT, descriptor.kind)
+        assertEquals(SerialKind.OBJECT, descriptor.kind)
         assertEquals("SerializableObject", descriptor.serialName)
         assertEquals(0, descriptor.elementsCount)
         assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("?"))
@@ -194,7 +194,7 @@ class SerialDescriptorSpecificationTest {
     @Test
     fun testUnitDescriptor() {
         val descriptor = Unit.serializer().descriptor
-        assertEquals(StructureKind.OBJECT, descriptor.kind)
+        assertEquals(SerialKind.OBJECT, descriptor.kind)
         assertFalse(descriptor.isNullable)
         assertEquals("kotlin.Unit", descriptor.serialName)
         assertEquals(0, descriptor.annotations.size)

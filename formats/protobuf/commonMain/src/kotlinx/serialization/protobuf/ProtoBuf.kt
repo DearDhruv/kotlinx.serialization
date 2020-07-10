@@ -150,7 +150,7 @@ public class ProtoBuf(
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = when (descriptor.kind) {
             StructureKind.LIST -> RepeatedEncoder(writer, currentTagOrDefault, descriptor)
-            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
+            StructureKind.CLASS, SerialKind.OBJECT, is PolymorphicKind -> {
                 val tag = currentTagOrDefault
                 if (tag == MISSING_TAG && descriptor == this.descriptor) this
                 else ObjectEncoder(currentTagOrDefault, writer, descriptor =  descriptor)
@@ -370,7 +370,7 @@ public class ProtoBuf(
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             return when (descriptor.kind) {
                 StructureKind.LIST -> RepeatedDecoder(reader, currentTagOrDefault, descriptor)
-                StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
+                StructureKind.CLASS, SerialKind.OBJECT, is PolymorphicKind -> {
                     val tag = currentTagOrDefault
                         // Do not create redundant copy
                     if (tag == MISSING_TAG && this.descriptor == descriptor) return this

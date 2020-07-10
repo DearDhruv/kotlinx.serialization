@@ -17,9 +17,9 @@ public class EnumDescriptor(
     elementsCount: Int
 ) : PluginGeneratedSerialDescriptor(name, elementsCount = elementsCount) {
 
-    override val kind: SerialKind = UnionKind.ENUM_KIND
+    override val kind: SerialKind = SerialKind.ENUM
     private val elementDescriptors by lazy {
-        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), StructureKind.OBJECT) }
+        Array(elementsCount) { SerialDescriptor(name + "." + getElementName(it), SerialKind.OBJECT) }
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = elementDescriptors.getChecked(index)
@@ -28,19 +28,20 @@ public class EnumDescriptor(
         if (this === other) return true
         if (other == null) return false
         if (other !is SerialDescriptor) return false
-        if (other.kind !== UnionKind.ENUM_KIND) return false
+        if (other.kind !== SerialKind.ENUM) return false
         if (serialName != other.serialName) return false
         if (cachedSerialNames() != other.cachedSerialNames()) return false
         return true
     }
 
     override fun toString(): String {
-        return elementNames().joinToString(", ", "$serialName(", ")")
+        return elementNames.joinToString(", ", "$serialName(", ")")
     }
 
     override fun hashCode(): Int {
         var result = serialName.hashCode()
-        result = 31 * result + elementNames().hashCode()
+        val elementsHashCode = elementNames.fold(1) { hash, element -> 31 * hash + element.hashCode() }
+        result = 31 * result + elementsHashCode
         return result
     }
 }
@@ -53,10 +54,10 @@ public class EnumSerializer<T : Enum<T>>(
     private val values: Array<T>
 ) : KSerializer<T> {
 
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, UnionKind.ENUM_KIND) {
+    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, SerialKind.ENUM) {
         values.forEach {
             val fqn = "$serialName.${it.name}"
-            val enumMemberDescriptor = SerialDescriptor(fqn, StructureKind.OBJECT)
+            val enumMemberDescriptor = SerialDescriptor(fqn, SerialKind.OBJECT)
             element(it.name, enumMemberDescriptor)
         }
     }

@@ -246,3 +246,15 @@ public fun <T : Any> BinaryFormat.load(raw: ByteArray): T = noImpl()
     ReplaceWith("decodeFromHexString<T>(hex)"), DeprecationLevel.ERROR
 )
 public fun <T : Any> BinaryFormat.loads(hex: String): T = noImpl()
+
+@Deprecated(
+    "This method was replaced with property during serialization 1.0 stabilization",
+    ReplaceWith("elementDescriptors.toList()"), DeprecationLevel.ERROR
+)
+public fun SerialDescriptor.elementDescriptors(): List<SerialDescriptor> = noImpl()
+
+@Deprecated(
+    "This method was replaced with property during serialization 1.0 stabilization",
+    ReplaceWith("elementNames.toList()"), DeprecationLevel.ERROR
+)
+public fun SerialDescriptor.elementNames(): List<String>  = noImpl()

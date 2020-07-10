@@ -138,7 +138,7 @@ class BasicTypesSerializationTest {
             val name = inp.nextUntil(':', '}')
             if (name.isEmpty())
                 return READ_DONE
-            val index = desc.getElementIndexOrThrow(name)
+            val index = desc.getElementIndex(name)
             inp.expect(':')
             return index
         }

@@ -120,8 +120,10 @@ internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
 internal inline fun SerialDescriptor.hashCodeImpl(typeParams: Array<SerialDescriptor>): Int {
     var result = serialName.hashCode()
     result = 31 * result + typeParams.contentHashCode()
-    val elementDescriptors = elementDescriptors()
-    result = 31 * result + elementDescriptors.map { it.serialName }.hashCode()
-    result = 31 * result + elementDescriptors.map { it.kind }.hashCode()
+    val elementDescriptors = elementDescriptors
+    val namesHash = elementDescriptors.fold(1) { hash, element -> 31 * hash + element.serialName.hashCode() }
+    val kindHash = elementDescriptors.fold(1) { hash, element -> 31 * hash + element.kind.hashCode() }
+    result = 31 * result + namesHash
+    result = 31 * result + kindHash
     return result
 }

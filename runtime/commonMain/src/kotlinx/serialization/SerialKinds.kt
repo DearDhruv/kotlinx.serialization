@@ -26,6 +26,40 @@ import kotlinx.serialization.modules.*
  * represents a structure with two primitive fields.
  */
 public sealed class SerialKind {
+
+    /**
+     * Structure kind for singleton objects defined with `object` keyword.
+     * By default, objects are serialized as empty structures without any state and their identity is preserved
+     * across serialization within the same process, so you always have the same instance of the object.
+     *
+     * Empty structure is represented as a call to [Encoder.beginStructure] with the following [CompositeEncoder.endStructure]
+     * without any intermediate encodings.
+     */
+    public object OBJECT : SerialKind()
+
+    /**
+     * Represents a Kotlin [Enum] with statically known values.
+     * All enum values should be enumerated in descriptor elements.
+     * Each element descriptor of a [Enum] kind represents an instance of a particular enum
+     * and has an [StructureKind.OBJECT] kind.
+     * Each [positional name][SerialDescriptor.getElementName] contains a corresponding enum element [name][Enum.name].
+     *
+     * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
+     */
+    public object ENUM : SerialKind()
+
+    /**
+     * Represents an "unknown" type that will be known only at the moment of the serialization.
+     * Effectively it defers the choice of the serializer to a moment of the serialization, and can
+     * be used for [contextual][ContextualSerialization] serialization.
+     *
+     * To introspect descriptor of this kind, an instance of [SerialModule] is required.
+     * See [capturedKClass] extension property for more details.
+     * However, if possible options are known statically (e.g. for sealed classes), they can be
+     * enumerated in child descriptors similarly to [ENUM].
+     */
+    public object CONTEXTUAL : SerialKind()
+
     override fun toString(): String {
         // KNPE should never happen, because SerialKind is sealed and all inheritors are non-anonymous
         return this::class.simpleName!!
@@ -189,46 +223,19 @@ public sealed class StructureKind : SerialKind() {
      */
     public object MAP : StructureKind()
 
-    /**
-     * Structure kind for singleton objects defined with `object` keyword.
-     * By default, objects are serialized as empty structures without any state and their identity is preserved
-     * across serialization within the same process, so you always have the same instance of the object.
-     *
-     * Empty structure is represented as a call to [Encoder.beginStructure] with the following [CompositeEncoder.endStructure]
-     * without any intermediate encodings.
-     */
-    public object OBJECT : StructureKind()
-}
 
-/**
- * Union structure kind represents a [tagged union][https://en.wikipedia.org/wiki/Tagged_union] structure,
- * meaning that the type is represent by one of a multiple possible values (potentially unknown).
- * An example of such union kind can be enum or its derivatives, such as "one of known strings".
- */
-public sealed class UnionKind : SerialKind() {
-
-    /**
-     * Represents a Kotlin [Enum] with statically known values.
-     * All enum values should be enumerated in descriptor elements.
-     * Each element descriptor of a [Enum] kind represents an instance of a particular enum
-     * and has an [StructureKind.OBJECT] kind.
-     * Each [positional name][SerialDescriptor.getElementName] contains a corresponding enum element [name][Enum.name].
-     *
-     * Corresponding encoder and decoder methods are [Encoder.encodeEnum] and [Decoder.decodeEnum].
-     */
-    public object ENUM_KIND : UnionKind() // https://github.com/JetBrains/kotlin-native/issues/1447
-
-    /**
-     * Represents an "unknown" type that will be known only at the moment of the serialization.
-     * Effectively it defers the choice of the serializer to a moment of the serialization, and can
-     * be used for [contextual][ContextualSerialization] serialization.
-     *
-     * To introspect descriptor of this kind, an instance of [SerialModule] is required.
-     * See [capturedKClass] extension property for more details.
-     * However, if possible options are known statically (e.g. for sealed classes), they can be
-     * enumerated in child descriptors similarly to [ENUM_KIND].
-     */
-    public object CONTEXTUAL : UnionKind()
+    @Deprecated(
+        level = DeprecationLevel.ERROR,
+        message = "This companion is added only as temporary migration mechanism"
+    )
+    public companion object {
+        @Deprecated(
+            "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
+            replaceWith = ReplaceWith("SerialKind.OBJECT")
+        )
+        public val OBJECT: StructureKind
+            get() = error("Should not be called")
+    }
 }
 
 /**
@@ -259,3 +266,20 @@ public sealed class PolymorphicKind : SerialKind() {
     public object OPEN : PolymorphicKind()
 }
 
+@Deprecated(
+    level = DeprecationLevel.ERROR,
+    message = "This object is added only as temporary migration mechanism"
+)
+public object UnionKind {
+    @Deprecated(
+        "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("SerialKind.ENUM")
+    )
+    public val ENUM_KIND: SerialKind get() = error("Should not be called")
+
+    @Deprecated(
+        "Was moved to the top-level serial kind during 1.0 API stabilization", level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("SerialKind.CONTEXTUAL")
+    )
+    public val CONTEXTUAL: SerialKind get() = error("Should not be called")
+}

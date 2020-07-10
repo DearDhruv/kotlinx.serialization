@@ -11,7 +11,7 @@ import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
 private val SerialKind.listLike get() = this == StructureKind.LIST || this is PolymorphicKind
-private val SerialKind.objLike get() = this == StructureKind.CLASS || this == StructureKind.OBJECT
+private val SerialKind.objLike get() = this == StructureKind.CLASS || this == SerialKind.OBJECT
 
 /**
  * Allows [deserialization][parse]
@@ -183,5 +183,13 @@ public class ConfigParser(
         public inline fun <reified T : Any> parse(conf: Config): T = ConfigParser().parse(conf, serializer())
 
         private val NAMING_CONVENTION_REGEX by lazy { "[A-Z]".toRegex() }
+    }
+
+
+    internal fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
+        val index = getElementIndex(name)
+        if (index == CompositeDecoder.UNKNOWN_NAME)
+            throw SerializationException("$serialName does not contain element with name '$name'")
+        return index
     }
 }
